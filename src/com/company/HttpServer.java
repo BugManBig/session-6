@@ -11,6 +11,7 @@ import java.util.Map;
 public class HttpServer {
     private int port;
     private Map<String, String> params = new HashMap<>();
+    private final String OK_RESPONSE = "HTTP/1.1 200 OK\r\n\r\n";
 
     public HttpServer(int port) {
         this.port = port;
@@ -21,11 +22,10 @@ public class HttpServer {
     }
 
     private void listenPort() {
-        String resultOfRequest = getInputRequest();
-        parseParams(resultOfRequest);
+        waitRequestAndSendAnswer();
     }
 
-    private String getInputRequest() {
+    private void waitRequestAndSendAnswer() {
         String result = "";
         String line;
         try {
@@ -38,11 +38,13 @@ public class HttpServer {
                 result += line + "\n";
                 line = reader.readLine();
             }
+            String responce = OK_RESPONSE + getAnswerByRequest(result);
+            clientSocket.getOutputStream().write(responce.getBytes("UTF-8"));
+            clientSocket.close();
             serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return result;
     }
 
     private void parseParams(String inputRequest) {
@@ -63,5 +65,10 @@ public class HttpServer {
             params.put(parameter, value);
             startPos = endPos + 1;
         }
+    }
+
+    private String getAnswerByRequest(String request) {
+        parseParams(request);
+        return String.valueOf(Integer.parseInt(params.get("a")) + Integer.parseInt(params.get("b")));
     }
 }
