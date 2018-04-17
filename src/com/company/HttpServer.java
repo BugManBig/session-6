@@ -10,16 +10,19 @@ import java.util.Map;
 
 public class HttpServer {
     private int port;
-    private Map<String, String> params = new HashMap<>();
+    private Map<String, String> paramsMap = new HashMap<>();
     private final String OK_RESPONSE = "HTTP/1.1 200 OK\r\n\r\n";
     private final String CREATE_USER = "user/create?";
+    private Serialization serialization = new Serialization("D:\\Soft\\Temp");
 
     public HttpServer(int port) {
         this.port = port;
     }
 
     public void start() {
-        listenPort();
+        while (true) {
+            listenPort();
+        }
     }
 
     private void listenPort() {
@@ -50,10 +53,6 @@ public class HttpServer {
 
     private void parseParams(String inputRequest) {
         int startPos = 0;
-        /*
-        int endPos = inputRequest.indexOf("HTTP/") - 1;
-        String paramsString = inputRequest.substring(5, endPos);
-        */
         int endPos;
         int splitterPos;
         String parameter;
@@ -66,8 +65,7 @@ public class HttpServer {
             splitterPos = inputRequest.indexOf("=", startPos);
             parameter = inputRequest.substring(startPos, splitterPos);
             value = inputRequest.substring(splitterPos + 1, endPos);
-            //System.out.println(parameter + ":" + value);
-            params.put(parameter, value);
+            paramsMap.put(parameter, value);
             startPos = endPos + 1;
         }
     }
@@ -78,8 +76,12 @@ public class HttpServer {
 
         if (paramsString.startsWith(CREATE_USER)) {
             parseParams(paramsString.substring(CREATE_USER.length()));
+            User user = new User(paramsMap.get("name"), Integer.parseInt(paramsMap.get("age")), Integer.parseInt(paramsMap.get("salary")));
+            return String.valueOf(serialization.serializeObject(user));
         }
 
         return "test";
     }
+
+
 }
