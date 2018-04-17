@@ -60,4 +60,9 @@ public class Serialization {
         }
         return id;
     }
+
+    public boolean deleteUser(int id) {
+        File file = new File(path + "\\" + id + ".bin");
+        return file.delete();
+    }
 }

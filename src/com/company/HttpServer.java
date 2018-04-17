@@ -13,6 +13,8 @@ public class HttpServer {
     private Map<String, String> paramsMap = new HashMap<>();
     private final String OK_RESPONSE = "HTTP/1.1 200 OK\r\n\r\n";
     private final String CREATE_USER = "user/create?";
+    private final String DELETE_USER = "user/delete/";
+    private final String NOT_FOUND = "HTTP/1.1 404 Not Found";
     private Serialization serialization = new Serialization("D:\\Soft\\Temp");
 
     public HttpServer(int port) {
@@ -42,7 +44,7 @@ public class HttpServer {
                 result += line + "\n";
                 line = reader.readLine();
             }
-            String response = OK_RESPONSE + getAnswerByRequest(result);
+            String response = getAnswerByRequest(result);
             clientSocket.getOutputStream().write(response.getBytes("UTF-8"));
             clientSocket.close();
             serverSocket.close();
@@ -77,11 +79,16 @@ public class HttpServer {
         if (paramsString.startsWith(CREATE_USER)) {
             parseParams(paramsString.substring(CREATE_USER.length()));
             User user = new User(paramsMap.get("name"), Integer.parseInt(paramsMap.get("age")), Integer.parseInt(paramsMap.get("salary")));
-            return String.valueOf(serialization.serializeObject(user));
+            return OK_RESPONSE + String.valueOf(serialization.serializeObject(user));
+        }
+        if (paramsString.startsWith(DELETE_USER)) {
+            int userId = Integer.parseInt(paramsString.substring(DELETE_USER.length()));
+            if (serialization.deleteUser(userId)) {
+                return OK_RESPONSE + "OK";
+            }
+            return NOT_FOUND;
         }
 
-        return "test";
+        return "Wrong request";
     }
-
-
 }
