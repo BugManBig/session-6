@@ -1,7 +1,9 @@
 package com.company;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Serialization {
@@ -33,7 +35,9 @@ public class Serialization {
 
     public User deserializeObject(int id) {
         try {
-            FileInputStream fis = new FileInputStream(path + "\\" + id + ".bin");
+            String fullPath = path + "\\" + id + ".bin";
+            if (!new File(fullPath).exists()) return null;
+            FileInputStream fis = new FileInputStream(fullPath);
             ObjectInputStream oin = new ObjectInputStream(fis);
             User user = (User) oin.readObject();
             oin.close();
@@ -64,5 +68,19 @@ public class Serialization {
     public boolean deleteUser(int id) {
         File file = new File(path + "\\" + id + ".bin");
         return file.delete();
+    }
+
+    public List<User> getUsersArray() {
+        File file = new File(path);
+        File[] filesArray = file.listFiles();
+        int id;
+        String fileName;
+        List<User> users = new ArrayList<>();
+        for (File elem : filesArray) {
+            fileName = elem.getName();
+            id = Integer.parseInt(fileName.substring(0, fileName.lastIndexOf('.')));
+            users.add(deserializeObject(id));
+        }
+        return users;
     }
 }

@@ -1,11 +1,15 @@
 package com.company;
 
+import com.company.Json.JsonFormatter;
+import com.company.Json.JsonFormatterImpl;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HttpServer {
@@ -14,6 +18,8 @@ public class HttpServer {
     private final String OK_RESPONSE = "HTTP/1.1 200 OK\r\n\r\n";
     private final String CREATE_USER = "user/create?";
     private final String DELETE_USER = "user/delete/";
+    private final String GET_USER_JSON = "user/";
+    private final String GET_LIST_JSON = "user/list";
     private final String NOT_FOUND = "HTTP/1.1 404 Not Found";
     private Serialization serialization = new Serialization("D:\\Soft\\Temp");
 
@@ -87,6 +93,24 @@ public class HttpServer {
                 return OK_RESPONSE + "OK";
             }
             return NOT_FOUND;
+        }
+        if (paramsString.startsWith(GET_LIST_JSON)) {
+            List<User> users = serialization.getUsersArray();
+            JsonFormatter formatter = new JsonFormatterImpl();
+            String result = "";
+            for (User elem : users) {
+                result += formatter.marshall(elem) + "\n\n";
+            }
+            return OK_RESPONSE + result;
+        }
+        if (paramsString.startsWith(GET_USER_JSON)) {
+            int userId = Integer.parseInt(paramsString.substring(GET_USER_JSON.length()));
+            User user = serialization.deserializeObject(userId);
+            if (user == null) {
+                return NOT_FOUND;
+            }
+            JsonFormatter formatter = new JsonFormatterImpl();
+            return OK_RESPONSE + formatter.marshall(user);
         }
 
         return "Wrong request";
