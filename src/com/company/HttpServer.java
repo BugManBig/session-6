@@ -12,6 +12,7 @@ public class HttpServer {
     private int port;
     private Map<String, String> params = new HashMap<>();
     private final String OK_RESPONSE = "HTTP/1.1 200 OK\r\n\r\n";
+    private final String CREATE_USER = "user/create?";
 
     public HttpServer(int port) {
         this.port = port;
@@ -38,8 +39,8 @@ public class HttpServer {
                 result += line + "\n";
                 line = reader.readLine();
             }
-            String responce = OK_RESPONSE + getAnswerByRequest(result);
-            clientSocket.getOutputStream().write(responce.getBytes("UTF-8"));
+            String response = OK_RESPONSE + getAnswerByRequest(result);
+            clientSocket.getOutputStream().write(response.getBytes("UTF-8"));
             clientSocket.close();
             serverSocket.close();
         } catch (IOException e) {
@@ -49,26 +50,36 @@ public class HttpServer {
 
     private void parseParams(String inputRequest) {
         int startPos = 0;
+        /*
         int endPos = inputRequest.indexOf("HTTP/") - 1;
         String paramsString = inputRequest.substring(5, endPos);
+        */
+        int endPos;
         int splitterPos;
         String parameter;
         String value;
-        while (startPos < paramsString.length()) {
-            endPos = paramsString.indexOf('&', startPos);
+        while (startPos < inputRequest.length()) {
+            endPos = inputRequest.indexOf('&', startPos);
             if (endPos == -1) {
-                endPos = paramsString.length();
+                endPos = inputRequest.length();
             }
-            splitterPos = paramsString.indexOf("=", startPos);
-            parameter = paramsString.substring(startPos, splitterPos);
-            value = paramsString.substring(splitterPos + 1, endPos);
+            splitterPos = inputRequest.indexOf("=", startPos);
+            parameter = inputRequest.substring(startPos, splitterPos);
+            value = inputRequest.substring(splitterPos + 1, endPos);
+            //System.out.println(parameter + ":" + value);
             params.put(parameter, value);
             startPos = endPos + 1;
         }
     }
 
     private String getAnswerByRequest(String request) {
-        parseParams(request);
-        return String.valueOf(Integer.parseInt(params.get("a")) + Integer.parseInt(params.get("b")));
+        int endPos = request.indexOf("HTTP/") - 1;
+        String paramsString = request.substring(5, endPos);
+
+        if (paramsString.startsWith(CREATE_USER)) {
+            parseParams(paramsString.substring(CREATE_USER.length()));
+        }
+
+        return "test";
     }
 }
