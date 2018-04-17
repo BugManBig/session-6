@@ -13,8 +13,28 @@ public class Serialization {
         this.path = path;
     }
 
-    public Serialization(String path) {
-        this.path = path;
+    public Serialization() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource("property.txt").getFile());
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(file.getPath()));
+            path = br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(path);
+    }
+
+    public Serialization(String arg) {
+        File file = new File(arg);
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(file.getPath()));
+            path = br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public int serializeObject(User user) {

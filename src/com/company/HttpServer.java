@@ -3,9 +3,7 @@ package com.company;
 import com.company.Json.JsonFormatter;
 import com.company.Json.JsonFormatterImpl;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -21,20 +19,24 @@ public class HttpServer {
     private final String GET_USER_JSON = "user/";
     private final String GET_LIST_JSON = "user/list";
     private final String NOT_FOUND = "HTTP/1.1 404 Not Found";
-    private Serialization serialization = new Serialization("D:\\Soft\\Temp");
+    private Serialization serialization;
 
     public HttpServer(int port) {
         this.port = port;
     }
 
     public void start() {
+        serialization = new Serialization();
         while (true) {
-            listenPort();
+            waitRequestAndSendAnswer();
         }
     }
 
-    private void listenPort() {
-        waitRequestAndSendAnswer();
+    public void start(String arg) {
+        serialization = new Serialization(arg);
+        while (true) {
+            waitRequestAndSendAnswer();
+        }
     }
 
     private void waitRequestAndSendAnswer() {

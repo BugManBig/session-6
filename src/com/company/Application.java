@@ -5,4 +5,9 @@ public class Application {
         HttpServer server = new HttpServer(80);
         server.start();
     }
+
+    public void run(String arg) {
+        HttpServer server = new HttpServer(80);
+        server.start(arg);
+    }
 }
